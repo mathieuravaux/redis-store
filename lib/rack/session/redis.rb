@@ -28,7 +28,7 @@ module Rack
           ret = @pool.set sid, session
           raise "Session collision on '#{sid.inspect}'" unless ret
         end
-        session.instance_variable_set('@old', {}.merge(session))
+        env['redis-store.session.old'] = {}.merge(session)
         return [sid, session]
       rescue Errno::ECONNREFUSED
         warn "#{self} is unable to find server."
@@ -47,7 +47,7 @@ module Rack
           session_id = generate_sid
           @pool.set session_id, 0
         end
-        old_session = new_session.instance_variable_get('@old') || {}
+        old_session = env['redis-store.session.old'] || {}
         session = merge_sessions session_id, old_session, new_session, session
         @pool.set session_id, session, options
         return session_id
@@ -61,13 +61,13 @@ module Rack
 
       def destroy_session(env, session_id, options)
         options = { :renew => true }.update(options) unless options[:drop]
-        set_session(env, session_id, 0, options)
+        set_session(env, session_id, {}, options)
       end
 
       private
         def merge_sessions(sid, old, new, cur=nil)
           cur ||= {}
-          unless Hash === old and Hash === new
+          unless old.kind_of?(Hash) && new.kind_of?(Hash)
             warn 'Bad old or new sessions provided.'
             return cur
           end
