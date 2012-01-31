@@ -60,6 +60,7 @@ module Rack
       end
 
       def destroy_session(env, session_id, options)
+        return if session_id.nil?
         options = { :renew => true }.update(options) unless options[:drop]
         set_session(env, session_id, {}, options)
       end
