@@ -17,7 +17,7 @@ begin
     gemspec.homepage    = "http://github.com/jodosha/redis-store"
     gemspec.authors     = [ "Luca Guidi" ]
     gemspec.executables = [ ]
-    gemspec.add_dependency "redis", ">= 2.0.0"
+    gemspec.add_dependency "redis", ">= 3.0.1"
   end
 
   Jeweler::GemcutterTasks.new
